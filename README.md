@@ -2,7 +2,7 @@
 
 Public Model Context Protocol server for Google Search Console.
 
-**Repository:** [github.com/lomiafrica/gsc-mcp](https://github.com/lomiafrica/gsc-mcp) — standalone project (not part of the lomi. monorepo).
+**Repository:** [github.com/lomiafrica/gsc-mcp](https://github.com/lomiafrica/gsc-mcp) — standalone project. In the lomi. monorepo it is checked out as a submodule at `apps/tools/gsc-mcp`.
 
 ## Features
 
@@ -13,6 +13,18 @@ Public Model Context Protocol server for Google Search Console.
 - Read-only by default; mutation tools require explicit write scope and `GSC_ENABLE_WRITES=true`
 - Local stdio for Cursor and Claude Desktop
 - Secure self-hosted Streamable HTTP for teams
+
+## Monorepo checkout
+
+Inside the lomi. monorepo:
+
+```bash
+git submodule update --init apps/tools/gsc-mcp
+cd apps/tools/gsc-mcp
+pnpm install
+pnpm run build
+pnpm auth
+```
 
 ## Quick start
 
