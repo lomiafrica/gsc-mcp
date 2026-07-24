@@ -1,0 +1,51 @@
+name: publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type (patch/minor/major) or skip'
+        required: false
+        default: 'skip'
+        type: choice
+        options:
+          - skip
+          - patch
+          - minor
+          - major
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Bump version
+        if: inputs.version_bump != 'skip'
+        run: npm version ${{ inputs.version_bump }} --no-git-tag-version
+
+      - name: Install dependencies, test, and build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm test
+          pnpm run build
+
+      - name: Publish to npm
+        run: pnpm publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "lomi-gsc",
+  "title": "lomi. Google Search Console MCP",
+  "description": "Typed Google Search Console analytics, inspection, and sitemap tools for humans and AI clients.",
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@lomi./gsc-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "GSC_OAUTH_CLIENT_FILE",
+          "description": "Path to Google OAuth desktop client JSON",
+          "required": false
+        },
+        {
+          "name": "GSC_SERVICE_ACCOUNT_KEY_FILE",
+          "description": "Path to Google service account JSON",
+          "required": false
+        },
+        {
+          "name": "GSC_ENABLE_WRITES",
+          "description": "Enable mutation tools when write scope is configured",
+          "required": false
+        }
+      ]
+    }
+  ]
+}
