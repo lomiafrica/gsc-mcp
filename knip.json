@@ -1,0 +1,20 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/index.ts",
+    "src/http-entry.ts",
+    "src/**/*.test.ts",
+    "vitest.config.ts",
+    "eslint.config.mjs"
+  ],
+  "project": ["src/**/*.ts", "vitest.config.ts", "eslint.config.mjs"],
+  "ignoreDependencies": ["@eslint/js"],
+  "ignoreExportsUsedInFile": true,
+  "rules": {
+    "exports": "off",
+    "types": "off",
+    "nsExports": "off",
+    "nsTypes": "off",
+    "enumMembers": "off"
+  }
+}

@@ -26,7 +26,8 @@
     "auth": "tsx src/index.ts auth",
     "test": "vitest run",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "knip": "knip --no-config-hints"
   },
   "engines": {
     "node": ">=22"
@@ -44,6 +45,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
     "globals": "^16.5.0",
+    "knip": "5.63.0",
     "tsx": "^4.23.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.64.0",
