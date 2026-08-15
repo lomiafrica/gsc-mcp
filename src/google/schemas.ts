@@ -136,10 +136,12 @@ export type PerformanceOverviewInput = z.infer<
 export type ComparePeriodsInput = z.infer<typeof comparePeriodsInputSchema>;
 export type QuickWinsInput = z.infer<typeof quickWinsInputSchema>;
 
-export function inclusiveDateRange(days: number): {
+export interface InclusiveDateRange {
   startDate: string;
   endDate: string;
-} {
+}
+
+export function inclusiveDateRange(days: number): InclusiveDateRange {
   const end = new Date();
   const start = new Date(end);
   start.setUTCDate(start.getUTCDate() - (days - 1));

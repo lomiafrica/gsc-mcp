@@ -59,10 +59,7 @@ export async function createCredentialContext(): Promise<CredentialContext> {
       canWrite: scopes.includes(GSC_WRITE_SCOPE),
       getAccessToken: async () => {
         const headers = await oauthClient.getRequestHeaders();
-        const authHeader =
-          typeof headers.get === 'function'
-            ? headers.get('Authorization')
-            : (headers as { Authorization?: string }).Authorization;
+        const authHeader = headers.get('Authorization');
         if (!authHeader?.startsWith('Bearer ')) {
           throw new Error('Failed to obtain Google access token');
         }
@@ -105,6 +102,7 @@ async function loadOAuthClient(): Promise<OAuth2Client | null> {
 async function loadServiceAccountCredentials(): Promise<JWTInput | null> {
   const inline = process.env.GSC_SERVICE_ACCOUNT_KEY?.trim();
   if (inline) {
+    // SAFETY: GoogleAuth validates the parsed credential fields before use.
     return JSON.parse(inline) as JWTInput;
   }
   const path = process.env.GSC_SERVICE_ACCOUNT_KEY_FILE?.trim();
@@ -112,6 +110,7 @@ async function loadServiceAccountCredentials(): Promise<JWTInput | null> {
     return null;
   }
   const raw = await readFile(path, 'utf8');
+  // SAFETY: GoogleAuth validates the parsed credential fields before use.
   return JSON.parse(raw) as JWTInput;
 }
 
@@ -129,7 +128,9 @@ export function mutationToolsEnabled(context: CredentialContext): boolean {
 const AUTH_SETUP_HINT =
   'Place a Google OAuth desktop client JSON at ~/.config/lomi-gsc-mcp/oauth_credentials.json, then run: npx @lomi./gsc-mcp auth';
 
-export function createUnauthenticatedContext(cause: unknown): CredentialContext {
+export function createUnauthenticatedContext(
+  cause: Error | string,
+): CredentialContext {
   const detail = cause instanceof Error ? cause.message : String(cause);
   return {
     mode: 'oauth',
@@ -145,6 +146,8 @@ export async function createCredentialContextOrPlaceholder(): Promise<Credential
   try {
     return await createCredentialContext();
   } catch (error) {
-    return createUnauthenticatedContext(error);
+    return createUnauthenticatedContext(
+      error instanceof Error ? error : 'Unknown authentication error',
+    );
   }
 }

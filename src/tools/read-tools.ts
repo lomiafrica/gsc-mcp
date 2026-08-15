@@ -1,8 +1,8 @@
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-import { buildCapabilityState } from '../auth/capabilities.js';
-import type { CredentialContext } from '../auth/credential-provider.js';
-import { SearchConsoleClient } from '../google/search-console-client.js';
+import { buildCapabilityState } from "../auth/capabilities.js";
+import type { CredentialContext } from "../auth/credential-provider.js";
+import { SearchConsoleClient } from "../google/search-console-client.js";
 import {
   batchInspectInputSchema,
   comparePeriodsInputSchema,
@@ -16,9 +16,10 @@ import {
   siteDetailInputSchema,
   sitemapDetailInputSchema,
   sitemapListInputSchema,
-} from '../google/schemas.js';
-import { sanitizeClientError } from '../google/errors.js';
-import { toolError, toolSuccess } from './structured-result.js';
+} from "../google/schemas.js";
+import { sanitizeClientError } from "../google/errors.js";
+import { isJsonObject, readString } from "@lomi./shared";
+import { toolError, toolSuccess } from "./structured-result.js";
 
 export function registerReadTools(
   server: McpServer,
@@ -27,11 +28,11 @@ export function registerReadTools(
   const client = new SearchConsoleClient(credentials);
 
   server.registerTool(
-    'gsc_capabilities',
+    "gsc_capabilities",
     {
-      title: 'Search Console capabilities',
+      title: "Search Console capabilities",
       description:
-        'Return active auth mode, scopes, limits, and disclosure notes for this server.',
+        "Return active auth mode, scopes, limits, and disclosure notes for this server.",
       inputSchema: {},
       annotations: {
         readOnlyHint: true,
@@ -44,11 +45,11 @@ export function registerReadTools(
   );
 
   server.registerTool(
-    'gsc_list_properties',
+    "gsc_list_properties",
     {
-      title: 'List Search Console properties',
+      title: "List Search Console properties",
       description:
-        'List properties accessible to the configured Google credential.',
+        "List properties accessible to the configured Google credential.",
       inputSchema: {},
       annotations: {
         readOnlyHint: true,
@@ -61,11 +62,11 @@ export function registerReadTools(
   );
 
   server.registerTool(
-    'gsc_get_property',
+    "gsc_get_property",
     {
-      title: 'Get Search Console property',
-      description: 'Get permission details for one Search Console property.',
-      inputSchema: siteDetailInputSchema.shape,
+      title: "Get Search Console property",
+      description: "Get permission details for one Search Console property.",
+      inputSchema: siteDetailInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -77,12 +78,12 @@ export function registerReadTools(
   );
 
   server.registerTool(
-    'gsc_search_analytics',
+    "gsc_search_analytics",
     {
-      title: 'Search analytics query',
+      title: "Search analytics query",
       description:
-        'Query clicks, impressions, CTR, and position with dimensions, filters, pagination, and data freshness controls.',
-      inputSchema: searchAnalyticsInputSchema.shape,
+        "Query clicks, impressions, CTR, and position with dimensions, filters, pagination, and data freshness controls.",
+      inputSchema: searchAnalyticsInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -94,12 +95,12 @@ export function registerReadTools(
   );
 
   server.registerTool(
-    'gsc_performance_overview',
+    "gsc_performance_overview",
     {
-      title: 'Performance overview',
+      title: "Performance overview",
       description:
-        'Return aggregate clicks, impressions, CTR, position, and daily trend for a recent period.',
-      inputSchema: performanceOverviewInputSchema.shape,
+        "Return aggregate clicks, impressions, CTR, position, and daily trend for a recent period.",
+      inputSchema: performanceOverviewInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -116,8 +117,8 @@ export function registerReadTools(
           end_date: range.endDate,
           dimensions: [],
           search_type: input.search_type,
-          aggregation_type: 'auto',
-          data_state: 'final',
+          aggregation_type: "auto",
+          data_state: "final",
           row_limit: 1,
           start_row: 0,
           filters: [],
@@ -126,10 +127,10 @@ export function registerReadTools(
           site_url: input.site_url,
           start_date: range.startDate,
           end_date: range.endDate,
-          dimensions: ['date'],
+          dimensions: ["date"],
           search_type: input.search_type,
-          aggregation_type: 'auto',
-          data_state: 'final',
+          aggregation_type: "auto",
+          data_state: "final",
           row_limit: 1000,
           start_row: 0,
           filters: [],
@@ -157,12 +158,12 @@ export function registerReadTools(
   );
 
   server.registerTool(
-    'gsc_compare_periods',
+    "gsc_compare_periods",
     {
-      title: 'Compare search periods',
+      title: "Compare search periods",
       description:
-        'Compare top rows between two date ranges for the same dimensions.',
-      inputSchema: comparePeriodsInputSchema.shape,
+        "Compare top rows between two date ranges for the same dimensions.",
+      inputSchema: comparePeriodsInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -179,8 +180,8 @@ export function registerReadTools(
             end_date: input.period1_end,
             dimensions: input.dimensions,
             search_type: input.search_type,
-            aggregation_type: 'auto',
-            data_state: 'final',
+            aggregation_type: "auto",
+            data_state: "final",
             row_limit: input.row_limit,
             start_row: 0,
             filters: [],
@@ -191,8 +192,8 @@ export function registerReadTools(
             end_date: input.period2_end,
             dimensions: input.dimensions,
             search_type: input.search_type,
-            aggregation_type: 'auto',
-            data_state: 'final',
+            aggregation_type: "auto",
+            data_state: "final",
             row_limit: input.row_limit,
             start_row: 0,
             filters: [],
@@ -211,18 +212,18 @@ export function registerReadTools(
             rows: period2.rows,
           },
           disclosure:
-            'Comparison uses top rows only and may omit long-tail changes.',
+            "Comparison uses top rows only and may omit long-tail changes.",
         };
       }),
   );
 
   server.registerTool(
-    'gsc_quick_wins',
+    "gsc_quick_wins",
     {
-      title: 'Find quick-win queries',
+      title: "Find quick-win queries",
       description:
-        'Identify queries with meaningful impressions, low CTR, and positions in a target range.',
-      inputSchema: quickWinsInputSchema.shape,
+        "Identify queries with meaningful impressions, low CTR, and positions in a target range.",
+      inputSchema: quickWinsInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -236,10 +237,10 @@ export function registerReadTools(
           site_url: input.site_url,
           start_date: input.start_date,
           end_date: input.end_date,
-          dimensions: ['query', 'page'],
-          search_type: 'web',
-          aggregation_type: 'auto',
-          data_state: 'final',
+          dimensions: ["query", "page"],
+          search_type: "web",
+          aggregation_type: "auto",
+          data_state: "final",
           row_limit: 5000,
           start_row: 0,
           filters: [],
@@ -274,17 +275,17 @@ export function registerReadTools(
           count: opportunities.length,
           opportunities,
           disclosure:
-            'Quick wins are heuristic opportunities based on top query/page rows only.',
+            "Quick wins are heuristic opportunities based on top query/page rows only.",
         };
       }),
   );
 
   server.registerTool(
-    'gsc_inspect_url',
+    "gsc_inspect_url",
     {
-      title: 'Inspect URL',
-      description: 'Inspect one URL indexing status in Google Search Console.',
-      inputSchema: inspectUrlInputSchema.shape,
+      title: "Inspect URL",
+      description: "Inspect one URL indexing status in Google Search Console.",
+      inputSchema: inspectUrlInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -303,12 +304,12 @@ export function registerReadTools(
   );
 
   server.registerTool(
-    'gsc_batch_inspect_urls',
+    "gsc_batch_inspect_urls",
     {
-      title: 'Batch inspect URLs',
+      title: "Batch inspect URLs",
       description:
-        'Inspect up to 20 URLs with bounded concurrency and quota-aware execution.',
-      inputSchema: batchInspectInputSchema.shape,
+        "Inspect up to 20 URLs with bounded concurrency and quota-aware execution.",
+      inputSchema: batchInspectInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -327,12 +328,12 @@ export function registerReadTools(
   );
 
   server.registerTool(
-    'gsc_indexing_issues',
+    "gsc_indexing_issues",
     {
-      title: 'Summarize indexing issues',
+      title: "Summarize indexing issues",
       description:
-        'Batch inspect URLs and summarize verdicts that look non-indexable.',
-      inputSchema: indexingIssuesInputSchema.shape,
+        "Batch inspect URLs and summarize verdicts that look non-indexable.",
+      inputSchema: indexingIssuesInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -345,25 +346,36 @@ export function registerReadTools(
         const batch = await client.batchInspectUrls(
           input.site_url,
           input.inspection_urls,
-          'en-US',
+          "en-US",
         );
         const issues = batch.results
           .map((result) => {
-            const inspection = result.inspection_result as
-              | Record<string, unknown>
-              | undefined;
-            const indexStatus = inspection?.indexStatusResult as
-              | Record<string, unknown>
-              | undefined;
-            const verdict = indexStatus?.verdict;
-            if (verdict === 'PASS') {
+            const inspectionValue = result.inspection_result;
+            const inspection =
+              inspectionValue !== undefined && isJsonObject(inspectionValue)
+                ? inspectionValue
+                : undefined;
+            const indexStatusValue = inspection?.indexStatusResult;
+            const indexStatus =
+              indexStatusValue !== undefined &&
+              isJsonObject(indexStatusValue)
+                ? indexStatusValue
+                : undefined;
+            const verdict = indexStatus
+              ? readString(indexStatus, "verdict")
+              : undefined;
+            if (verdict === "PASS") {
               return null;
             }
             return {
               inspection_url: result.inspection_url,
               verdict,
-              coverage_state: indexStatus?.coverageState,
-              indexing_state: indexStatus?.indexingState,
+              coverage_state: indexStatus
+                ? readString(indexStatus, "coverageState")
+                : undefined,
+              indexing_state: indexStatus
+                ? readString(indexStatus, "indexingState")
+                : undefined,
             };
           })
           .filter(Boolean);
@@ -378,11 +390,11 @@ export function registerReadTools(
   );
 
   server.registerTool(
-    'gsc_list_sitemaps',
+    "gsc_list_sitemaps",
     {
-      title: 'List sitemaps',
-      description: 'List submitted sitemaps for a Search Console property.',
-      inputSchema: sitemapListInputSchema.shape,
+      title: "List sitemaps",
+      description: "List submitted sitemaps for a Search Console property.",
+      inputSchema: sitemapListInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -395,11 +407,11 @@ export function registerReadTools(
   );
 
   server.registerTool(
-    'gsc_get_sitemap',
+    "gsc_get_sitemap",
     {
-      title: 'Get sitemap details',
-      description: 'Get details for one submitted sitemap.',
-      inputSchema: sitemapDetailInputSchema.shape,
+      title: "Get sitemap details",
+      description: "Get details for one submitted sitemap.",
+      inputSchema: sitemapDetailInputSchema["shape"],
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -412,35 +424,41 @@ export function registerReadTools(
   );
 }
 
-async function safe<T extends Record<string, unknown>>(
+async function safe<T extends object>(
   fn: () => Promise<T>,
 ): Promise<ReturnType<typeof toolSuccess<T>> | ReturnType<typeof toolError>> {
   try {
     return toolSuccess(await fn());
   } catch (error) {
-    return toolError(sanitizeClientError(error));
+    return toolError(
+      sanitizeClientError(
+        error instanceof Error ? error : "Unexpected Search Console error",
+      ),
+    );
   }
 }
 
 export const readToolNames = [
-  'gsc_capabilities',
-  'gsc_list_properties',
-  'gsc_get_property',
-  'gsc_search_analytics',
-  'gsc_performance_overview',
-  'gsc_compare_periods',
-  'gsc_quick_wins',
-  'gsc_inspect_url',
-  'gsc_batch_inspect_urls',
-  'gsc_indexing_issues',
-  'gsc_list_sitemaps',
-  'gsc_get_sitemap',
+  "gsc_capabilities",
+  "gsc_list_properties",
+  "gsc_get_property",
+  "gsc_search_analytics",
+  "gsc_performance_overview",
+  "gsc_compare_periods",
+  "gsc_quick_wins",
+  "gsc_inspect_url",
+  "gsc_batch_inspect_urls",
+  "gsc_indexing_issues",
+  "gsc_list_sitemaps",
+  "gsc_get_sitemap",
 ] as const;
 
-export function defaultDateRange(days = 28): {
+export interface DefaultDateRange {
   start_date: string;
   end_date: string;
-} {
+}
+
+export function defaultDateRange(days = 28): DefaultDateRange {
   const range = inclusiveDateRange(days);
   return {
     start_date: range.startDate,

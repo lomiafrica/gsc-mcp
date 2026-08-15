@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { createHash, randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import type { AddressInfo } from 'node:net';
 
 import { CodeChallengeMethod, OAuth2Client } from 'google-auth-library';
 
@@ -21,6 +22,7 @@ type OAuthClientJson = {
 export async function loadOAuthClientConfig(): Promise<OAuth2Client> {
   const path = oauthClientPath();
   const raw = await readFile(path, 'utf8');
+  // SAFETY: Required OAuth fields are validated immediately below.
   const parsed = JSON.parse(raw) as OAuthClientJson;
   const config = parsed.installed ?? parsed.web;
   if (!config?.client_id || !config.client_secret) {
@@ -80,8 +82,7 @@ async function authorizeViaLoopback(
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end('<h1>Authorization complete</h1><p>You can close this tab.</p>');
         const address = server.address();
-        const port =
-          address && typeof address !== 'string' ? address.port : undefined;
+        const port = isSocketAddress(address) ? address.port : undefined;
         server.close();
         resolve({
           authCode: code,
@@ -95,7 +96,7 @@ async function authorizeViaLoopback(
 
     server.listen(0, '127.0.0.1', () => {
       const address = server.address();
-      if (!address || typeof address === 'string') {
+      if (!isSocketAddress(address)) {
         reject(new Error('Failed to bind loopback OAuth server'));
         return;
       }
@@ -114,4 +115,10 @@ async function authorizeViaLoopback(
       console.error(`Open this URL in your browser:\n${authUrl}`);
     });
   });
+}
+
+function isSocketAddress(
+  address: AddressInfo | string | null,
+): address is AddressInfo {
+  return address !== null && typeof address !== 'string';
 }

@@ -16,7 +16,14 @@ export class GscApiError extends Error {
   }
 }
 
-export function sanitizeClientError(error: unknown): string {
+interface GoogleErrorBody {
+  error?: {
+    message?: string;
+    errors?: Array<{ reason?: string; message?: string }>;
+  };
+}
+
+export function sanitizeClientError(error: Error | string): string {
   if (error instanceof GscApiError) {
     return error.message;
   }
@@ -31,12 +38,8 @@ export async function parseGoogleError(response: Response): Promise<GscApiError>
   let message = `Google Search Console API error (${response.status})`;
 
   try {
-    const body = (await response.json()) as {
-      error?: {
-        message?: string;
-        errors?: Array<{ reason?: string; message?: string }>;
-      };
-    };
+    // SAFETY: Optional Google error fields are read defensively below.
+    const body = (await response.json()) as GoogleErrorBody;
     reason = body.error?.errors?.[0]?.reason;
     if (body.error?.message) {
       message = body.error.message;

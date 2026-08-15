@@ -1,3 +1,5 @@
+import { GscApiError } from './errors.js';
+
 export async function withRetry<T>(
   fn: () => Promise<T>,
   options: {
@@ -9,7 +11,7 @@ export async function withRetry<T>(
   const maxAttempts = options.maxAttempts ?? 4;
   const baseDelayMs = options.baseDelayMs ?? 500;
   let attempt = 0;
-  let lastError: unknown;
+  let lastError: Error = new Error('Retry attempts exhausted');
 
   while (attempt < maxAttempts) {
     if (options.signal?.aborted) {
@@ -18,12 +20,9 @@ export async function withRetry<T>(
     try {
       return await fn();
     } catch (error) {
-      lastError = error;
-      const retryable =
-        typeof error === 'object' &&
-        error !== null &&
-        'retryable' in error &&
-        (error as { retryable?: boolean }).retryable === true;
+      lastError =
+        error instanceof Error ? error : new Error('Unexpected retry failure');
+      const retryable = error instanceof GscApiError && error.retryable;
       attempt += 1;
       if (!retryable || attempt >= maxAttempts) {
         throw error;
