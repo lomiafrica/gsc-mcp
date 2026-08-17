@@ -25,7 +25,8 @@
     "dev:http": "GSC_MCP_TRANSPORT=http tsx src/http-entry.ts",
     "auth": "tsx src/index.ts auth",
     "test": "vitest run",
-    "lint": "eslint \"src/**/*.ts\" --fix",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "typecheck": "tsc --noEmit",
     "knip": "knip --no-config-hints"
   },
