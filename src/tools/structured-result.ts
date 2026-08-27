@@ -3,11 +3,13 @@ import { maxResultRows } from '../env-config.js';
 interface StructuredObject {}
 
 interface ToolSuccessResult<T extends StructuredObject> {
+  [key: string]: unknown;
   content: Array<{ type: 'text'; text: string }>;
   structuredContent: T;
 }
 
 interface ToolErrorResult {
+  [key: string]: unknown;
   content: Array<{ type: 'text'; text: string }>;
   isError: true;
 }
