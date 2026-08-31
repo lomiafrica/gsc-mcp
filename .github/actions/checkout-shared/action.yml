@@ -1,5 +1,5 @@
-name: Checkout @lomi./shared
-description: Sparse-checkout packages/shared from the public umbrella for file: resolution
+name: "Checkout @lomi./shared"
+description: "Sparse-checkout packages/shared from the public umbrella for file: resolution"
 
 runs:
   using: composite
