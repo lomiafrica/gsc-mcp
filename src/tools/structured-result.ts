@@ -1,6 +1,6 @@
 import { maxResultRows } from '../env-config.js';
 
-interface StructuredObject {}
+type StructuredObject = Record<string, unknown>;
 
 interface ToolSuccessResult<T extends StructuredObject> {
   [key: string]: unknown;
