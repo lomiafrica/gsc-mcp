@@ -1,0 +1,18 @@
+name: Checkout @lomi./shared
+description: Sparse-checkout packages/shared from the public umbrella for file: resolution
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v5
+      with:
+        repository: lomiafrica/lomi.
+        sparse-checkout: packages/shared
+        sparse-checkout-cone-mode: true
+        path: _umbrella
+    - name: "Link packages/shared for file: dependency"
+      shell: bash
+      run: |
+        mkdir -p ../../../packages
+        ln -sfn "$GITHUB_WORKSPACE/_umbrella/packages/shared" ../../../packages/shared
+        ls -la ../../../packages/shared/package.json
