@@ -3,6 +3,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { buildCapabilityState } from "../auth/capabilities.js";
 import type { CredentialContext } from "../auth/credential-provider.js";
 import { SearchConsoleClient } from "../google/search-console-client.js";
+import { runPortfolioHealth } from "../google/portfolio.js";
 import {
   batchInspectInputSchema,
   comparePeriodsInputSchema,
@@ -11,6 +12,7 @@ import {
   indexingIssuesInputSchema,
   inspectUrlInputSchema,
   performanceOverviewInputSchema,
+  portfolioHealthInputSchema,
   quickWinsInputSchema,
   searchAnalyticsInputSchema,
   siteDetailInputSchema,
@@ -18,7 +20,12 @@ import {
   sitemapListInputSchema,
 } from "../google/schemas.js";
 import { sanitizeClientError } from "../google/errors.js";
-import { isJsonObject, readString } from "@lomi./shared";
+import {
+  isJsonObject,
+  normalizeJsonObject,
+  readString,
+  type JsonObject,
+} from "@lomi./shared";
 import { toolError, toolSuccess } from "./structured-result.js";
 
 export function registerReadTools(
@@ -59,6 +66,23 @@ export function registerReadTools(
       },
     },
     async () => safe(() => client.listSites()),
+  );
+
+  server.registerTool(
+    "gsc_portfolio_health",
+    {
+      title: "Portfolio health",
+      description:
+        "Check Search Console properties in one pass: sitemaps, homepage index status, and recent totals. Omit site_urls to use GSC_PORTFOLIO_SITES or every accessible property.",
+      inputSchema: portfolioHealthInputSchema["shape"],
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async (input) => safe(() => runPortfolioHealth(client, input)),
   );
 
   server.registerTool(
@@ -142,9 +166,12 @@ export function registerReadTools(
           ctr: 0,
           position: 0,
         };
-        return {
+        return normalizeJsonObject({
           site_url: input.site_url,
-          date_range: range,
+          date_range: {
+            startDate: range.startDate,
+            endDate: range.endDate,
+          },
           totals: {
             clicks: summary.clicks,
             impressions: summary.impressions,
@@ -153,7 +180,7 @@ export function registerReadTools(
           },
           daily_trend: daily.rows,
           disclosure: daily.disclosure,
-        };
+        });
       }),
   );
 
@@ -379,13 +406,13 @@ export function registerReadTools(
             };
           })
           .filter(Boolean);
-        return {
+        return normalizeJsonObject({
           site_url: input.site_url,
           inspected: batch.count,
           issue_count: issues.length,
           issues,
           disclosure: batch.results[0]?.disclosure,
-        };
+        });
       }),
   );
 
@@ -424,7 +451,7 @@ export function registerReadTools(
   );
 }
 
-async function safe<T extends object>(
+async function safe<T extends JsonObject>(
   fn: () => Promise<T>,
 ): Promise<ReturnType<typeof toolSuccess<T>> | ReturnType<typeof toolError>> {
   try {
@@ -441,6 +468,7 @@ async function safe<T extends object>(
 export const readToolNames = [
   "gsc_capabilities",
   "gsc_list_properties",
+  "gsc_portfolio_health",
   "gsc_get_property",
   "gsc_search_analytics",
   "gsc_performance_overview",

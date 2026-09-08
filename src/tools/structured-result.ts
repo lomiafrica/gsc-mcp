@@ -1,20 +1,25 @@
+import { isJsonArray, type JsonObject, type JsonValue } from '@lomi./shared';
 import { maxResultRows } from '../env-config.js';
 
-type StructuredObject = object;
+type ToolTextContent = { type: 'text'; text: string };
 
-interface ToolSuccessResult<T extends StructuredObject> {
-  [key: string]: unknown;
-  content: Array<{ type: 'text'; text: string }>;
+type ToolSuccessResult<T extends JsonObject> = {
+  content: ToolTextContent[];
   structuredContent: T;
-}
+};
 
-interface ToolErrorResult {
-  [key: string]: unknown;
-  content: Array<{ type: 'text'; text: string }>;
+type ToolErrorResult = {
+  content: ToolTextContent[];
   isError: true;
-}
+};
 
-export function toolSuccess<T extends StructuredObject>(
+type StructuredRows = JsonObject & {
+  rows: JsonValue[];
+  truncated?: boolean;
+  truncated_to?: number;
+};
+
+export function toolSuccess<T extends JsonObject>(
   value: T,
 ): ToolSuccessResult<T> {
   const compact = compactStructured(value);
@@ -31,7 +36,7 @@ export function toolError(message: string): ToolErrorResult {
   };
 }
 
-function compactStructured<T extends StructuredObject>(value: T): T {
+function compactStructured<T extends JsonObject>(value: T): T {
   const maxRows = maxResultRows();
   if (!hasRows(value)) {
     return value;
@@ -47,8 +52,6 @@ function compactStructured<T extends StructuredObject>(value: T): T {
   };
 }
 
-function hasRows(
-  value: StructuredObject,
-): value is StructuredObject & { rows: StructuredObject[] } {
-  return 'rows' in value && Array.isArray(value.rows);
+function hasRows(value: JsonObject): value is StructuredRows {
+  return isJsonArray(value.rows);
 }

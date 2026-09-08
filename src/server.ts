@@ -8,7 +8,7 @@ import { registerWriteTools } from './tools/write-tools.js';
 
 const SERVER_INSTRUCTIONS = `# lomi. Google Search Console MCP
 
-Read-only by default. Start with \`gsc_list_properties\`, then use \`gsc_search_analytics\`, \`gsc_performance_overview\`, \`gsc_inspect_url\`, or \`gsc_list_sitemaps\`.
+Read-only by default. Start with \`gsc_portfolio_health\` or \`gsc_list_properties\`, then use \`gsc_search_analytics\`, \`gsc_performance_overview\`, \`gsc_inspect_url\`, or \`gsc_list_sitemaps\`.
 
 Search Analytics returns top rows sorted by clicks, not guaranteed exhaustive data. URL Inspection returns indexed snapshots only and does not request indexing.
 

@@ -1,4 +1,6 @@
 import { readFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 import {
   GoogleAuth,
@@ -6,6 +8,10 @@ import {
   type JWTInput,
 } from 'google-auth-library';
 
+import {
+  quotaProjectFromEnv,
+  readQuotaProjectFromAdcJson,
+} from '../env-config.js';
 import {
   GSC_READONLY_SCOPE,
   GSC_WRITE_SCOPE,
@@ -24,6 +30,7 @@ export type CredentialContext = {
   mode: CredentialMode;
   scopes: string[];
   canWrite: boolean;
+  quotaProject: string | null;
   getAccessToken: () => Promise<string>;
 };
 
@@ -36,7 +43,7 @@ export async function createCredentialContext(): Promise<CredentialContext> {
       scopes,
     });
     const client = await auth.getClient();
-    return {
+    return attachQuota({
       mode: 'service_account',
       scopes,
       canWrite: scopes.includes(GSC_WRITE_SCOPE),
@@ -47,13 +54,13 @@ export async function createCredentialContext(): Promise<CredentialContext> {
         }
         return token.token;
       },
-    };
+    });
   }
 
   const oauthClient = await loadOAuthClient();
   if (oauthClient) {
     const scopes = requestedOAuthScopes();
-    return {
+    return attachQuota({
       mode: 'oauth',
       scopes,
       canWrite: scopes.includes(GSC_WRITE_SCOPE),
@@ -65,13 +72,13 @@ export async function createCredentialContext(): Promise<CredentialContext> {
         }
         return authHeader.slice('Bearer '.length);
       },
-    };
+    });
   }
 
   const auth = new GoogleAuth({ scopes: requestedOAuthScopes() });
   const client = await auth.getClient();
   const scopes = requestedOAuthScopes();
-  return {
+  return attachQuota({
     mode: 'application_default',
     scopes,
     canWrite: scopes.includes(GSC_WRITE_SCOPE),
@@ -82,7 +89,7 @@ export async function createCredentialContext(): Promise<CredentialContext> {
       }
       return token.token;
     },
-  };
+  });
 }
 
 async function loadOAuthClient(): Promise<OAuth2Client | null> {
@@ -125,8 +132,8 @@ export function mutationToolsEnabled(context: CredentialContext): boolean {
   return writesEnabled() && context.canWrite;
 }
 
-const AUTH_SETUP_HINT =
-  'Place a Google OAuth desktop client JSON at ~/.config/lomi-gsc-mcp/oauth_credentials.json, then run: npx @lomi./gsc-mcp auth';
+export const AUTH_SETUP_HINT =
+  'Google Search Console is not signed in. Run gcloud auth application-default login --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/webmasters.readonly and set GOOGLE_CLOUD_QUOTA_PROJECT to a GCP project with the Search Console API enabled. Cursor Connect only reconnects this local server; it does not sign in to Google. Or place a Desktop OAuth client JSON at ~/.config/lomi-gsc-mcp/oauth_credentials.json and run: npx @lomi./gsc-mcp auth';
 
 export function createUnauthenticatedContext(
   cause: Error | string,
@@ -136,9 +143,35 @@ export function createUnauthenticatedContext(
     mode: 'oauth',
     scopes: [],
     canWrite: false,
+    quotaProject: quotaProjectFromEnv(),
     getAccessToken: async () => {
-      throw new Error(`Google Search Console is not authenticated (${detail}). ${AUTH_SETUP_HINT}`);
+      throw new Error(`${AUTH_SETUP_HINT} (${detail})`);
     },
+  };
+}
+
+async function resolveQuotaProject(): Promise<string | null> {
+  const fromEnv = quotaProjectFromEnv();
+  if (fromEnv) {
+    return fromEnv;
+  }
+  const path =
+    process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim() ||
+    join(homedir(), '.config', 'gcloud', 'application_default_credentials.json');
+  try {
+    const raw = await readFile(path, 'utf8');
+    return readQuotaProjectFromAdcJson(raw);
+  } catch {
+    return null;
+  }
+}
+
+async function attachQuota(
+  context: Omit<CredentialContext, 'quotaProject'>,
+): Promise<CredentialContext> {
+  return {
+    ...context,
+    quotaProject: await resolveQuotaProject(),
   };
 }
 

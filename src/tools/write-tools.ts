@@ -10,6 +10,7 @@ import {
   submitSitemapInputSchema,
 } from "../google/schemas.js";
 import { sanitizeClientError } from "../google/errors.js";
+import type { JsonObject } from "@lomi./shared";
 import { toolError, toolSuccess } from "./structured-result.js";
 
 export function registerWriteTools(
@@ -100,7 +101,7 @@ export const writeToolNames = [
   "gsc_delete_property",
 ] as const;
 
-async function safe<T extends object>(
+async function safe<T extends JsonObject>(
   fn: () => Promise<T>,
 ): Promise<ReturnType<typeof toolSuccess<T>> | ReturnType<typeof toolError>> {
   try {

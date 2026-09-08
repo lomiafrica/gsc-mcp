@@ -6,6 +6,7 @@ Public Model Context Protocol server for Google Search Console.
 
 ## Features
 
+- Portfolio health across every accessible property (or `GSC_PORTFOLIO_SITES`)
 - Typed Search Analytics with dimensions, filters, pagination, and freshness controls
 - Performance overview, period comparison, and quick-win opportunity detection
 - URL inspection with bounded batch support
@@ -23,19 +24,15 @@ git submodule update --init apps/tools/gsc-mcp
 cd apps/tools/gsc-mcp
 pnpm install
 pnpm run build
-pnpm auth
 ```
 
 ## Quick start
 
+Preferred: Application Default Credentials plus a quota project that has the Search Console API enabled.
+
 ```bash
-npx -y @lomi./gsc-mcp auth
-```
-
-Place your Google OAuth desktop client JSON at:
-
-```text
-~/.config/lomi-gsc-mcp/oauth_credentials.json
+gcloud auth application-default login \
+  --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/webmasters.readonly
 ```
 
 Then add to Cursor:
@@ -45,21 +42,29 @@ Then add to Cursor:
   "mcpServers": {
     "google-search-console": {
       "command": "npx",
-      "args": ["-y", "@lomi./gsc-mcp"]
+      "args": ["-y", "@lomi./gsc-mcp"],
+      "env": {
+        "GOOGLE_CLOUD_QUOTA_PROJECT": "your-gcp-project-id",
+        "GSC_PORTFOLIO_SITES": "sc-domain:example.com"
+      }
     }
   }
 }
 ```
 
+Cursor Connect only reconnects this local server. It does not sign in to Google.
+
 ## Authentication
 
 Choose one:
 
-- Desktop OAuth with PKCE (`lomi-gsc-mcp auth`)
+- Application Default Credentials (`gcloud auth application-default login`) plus `GOOGLE_CLOUD_QUOTA_PROJECT`
+- Desktop OAuth with PKCE: put a Google Desktop client JSON at `~/.config/lomi-gsc-mcp/oauth_credentials.json`, then `npx -y @lomi./gsc-mcp auth`
 - Service account JSON via `GSC_SERVICE_ACCOUNT_KEY_FILE`
-- Application Default Credentials for automation
 
 Default OAuth scope is read-only. Set `GSC_OAUTH_SCOPE=write` and `GSC_ENABLE_WRITES=true` only when you need sitemap or property mutations.
+
+Start with `gsc_portfolio_health`. Sitemap `contents.indexed` is often 0 even when pages are indexed; use homepage inspection.
 
 ## Self-hosted HTTP
 

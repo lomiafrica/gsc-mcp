@@ -307,6 +307,7 @@ export class SearchConsoleClient {
   private async request<T>(url: string, init: RequestInit = {}): Promise<T> {
     return withRetry(async () => {
       const token = await this.credentials.getAccessToken();
+      const quotaProject = this.credentials.quotaProject;
       const response = await fetch(url, {
         ...init,
         headers: Object.assign(
@@ -315,6 +316,7 @@ export class SearchConsoleClient {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
           },
+          quotaProject ? { "x-goog-user-project": quotaProject } : {},
           init.body ? { "Content-Type": "application/json" } : {},
           {
             ...(init.headers ?? {}),

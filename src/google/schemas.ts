@@ -107,6 +107,18 @@ export const siteDetailInputSchema = z.object({
   site_url: siteUrlSchema,
 });
 
+export const portfolioHealthInputSchema = z.object({
+  site_urls: z
+    .array(siteUrlSchema)
+    .max(20)
+    .optional()
+    .describe(
+      'Properties to check. Omit to use GSC_PORTFOLIO_SITES or every accessible property.',
+    ),
+  days: z.number().int().min(1).max(480).default(28),
+  inspect_homepages: z.boolean().default(true),
+});
+
 export const submitSitemapInputSchema = z.object({
   site_url: siteUrlSchema,
   feedpath: z.string().url(),
@@ -135,6 +147,7 @@ export type PerformanceOverviewInput = z.infer<
 >;
 export type ComparePeriodsInput = z.infer<typeof comparePeriodsInputSchema>;
 export type QuickWinsInput = z.infer<typeof quickWinsInputSchema>;
+export type PortfolioHealthInput = z.infer<typeof portfolioHealthInputSchema>;
 
 export interface InclusiveDateRange {
   startDate: string;
@@ -153,6 +166,13 @@ export function inclusiveDateRange(days: number): InclusiveDateRange {
 
 export function formatIsoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
+}
+
+export function homepageFromSiteUrl(siteUrl: string): string {
+  if (siteUrl.startsWith('sc-domain:')) {
+    return `https://${siteUrl.slice('sc-domain:'.length)}/`;
+  }
+  return siteUrl.endsWith('/') ? siteUrl : `${siteUrl}/`;
 }
 
 export function assertInspectionUrlUnderSite(

@@ -23,14 +23,28 @@ interface GoogleErrorBody {
   };
 }
 
+const QUOTA_PROJECT_HINT =
+  ' Set GOOGLE_CLOUD_QUOTA_PROJECT to a GCP project with the Search Console API enabled.';
+
+function withQuotaHint(message: string): string {
+  if (
+    /quota project|searchconsole\.googleapis\.com API requires|SERVICE_DISABLED/i.test(
+      message,
+    )
+  ) {
+    return `${message}${QUOTA_PROJECT_HINT}`;
+  }
+  return message;
+}
+
 export function sanitizeClientError(error: Error | string): string {
   if (error instanceof GscApiError) {
-    return error.message;
+    return withQuotaHint(error.message);
   }
   if (error instanceof Error) {
-    return error.message.replace(/\/Users\/[^\s]+/g, '<path>');
+    return withQuotaHint(error.message.replace(/\/Users\/[^\s]+/g, '<path>'));
   }
-  return 'Unexpected Search Console error';
+  return withQuotaHint(error);
 }
 
 export async function parseGoogleError(response: Response): Promise<GscApiError> {

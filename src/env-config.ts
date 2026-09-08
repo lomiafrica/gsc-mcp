@@ -1,3 +1,5 @@
+import { isJsonObject, readString, validateJsonValue } from '@lomi./shared';
+
 export function maxResultRows(): number {
   const raw = process.env.GSC_MCP_MAX_RESULT_ROWS?.trim();
   const parsed = raw ? Number(raw) : 5000;
@@ -70,4 +72,36 @@ export function maxBodyBytes(): number {
 
 export function isLoopbackHost(host: string): boolean {
   return host === '127.0.0.1' || host === 'localhost' || host === '::1';
+}
+
+export function quotaProjectFromEnv(): string | null {
+  const raw =
+    process.env.GOOGLE_CLOUD_QUOTA_PROJECT?.trim() ||
+    process.env.GSC_QUOTA_PROJECT?.trim() ||
+    process.env.CLOUDSDK_CORE_PROJECT?.trim();
+  return raw || null;
+}
+
+export function portfolioSites(): string[] {
+  const raw = process.env.GSC_PORTFOLIO_SITES?.trim();
+  if (!raw) {
+    return [];
+  }
+  return raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+export function readQuotaProjectFromAdcJson(raw: string): string | null {
+  try {
+    const parsed = validateJsonValue(JSON.parse(raw));
+    if (!isJsonObject(parsed)) {
+      return null;
+    }
+    const project = readString(parsed, 'quota_project_id')?.trim();
+    return project || null;
+  } catch {
+    return null;
+  }
 }

@@ -2,6 +2,30 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 export function registerPrompts(server: McpServer): void {
   server.registerPrompt(
+    'portfolio-health-review',
+    {
+      title: 'Portfolio health review',
+      description:
+        'Check every configured Search Console property for index, sitemap, and traffic health.',
+    },
+    async () => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text: `Review Search Console health across the portfolio.
+
+Call gsc_portfolio_health. Summarize each property: homepage verdict, last crawl, sitemap errors or warnings, and 28-day clicks and impressions.
+
+Do not treat sitemap contents.indexed as proof of indexing. That field is often 0 when pages are indexed. Use homepage inspection instead.`,
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
     'weekly-performance-review',
     {
       title: 'Weekly performance review',

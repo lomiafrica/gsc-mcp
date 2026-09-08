@@ -8,7 +8,9 @@ import {
 
 export type CapabilityState = {
   auth_mode: CredentialContext['mode'];
+  signed_in: boolean;
   scopes: string[];
+  quota_project: string | null;
   writes_enabled: boolean;
   mutation_tools_enabled: boolean;
   search_analytics: {
@@ -29,7 +31,9 @@ export function buildCapabilityState(
 ): CapabilityState {
   return {
     auth_mode: context.mode,
+    signed_in: context.scopes.length > 0,
     scopes: context.scopes,
+    quota_project: context.quotaProject,
     writes_enabled: context.canWrite,
     mutation_tools_enabled: mutationToolsEnabled(context),
     search_analytics: {
