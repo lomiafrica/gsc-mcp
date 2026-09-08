@@ -22,7 +22,7 @@ export function buildGscServer(credentials: CredentialContext): McpServer {
       title: 'lomi. Google Search Console MCP',
       description:
         'Typed Google Search Console analytics, inspection, and sitemap tools.',
-      websiteUrl: 'https://docs.lomi.africa/build/mcp-gsc',
+      websiteUrl: 'https://docs.lomi.africa/build/mcp',
     },
     {
       instructions: SERVER_INSTRUCTIONS,

@@ -12,7 +12,7 @@ describe('schemas', () => {
     expect(() =>
       assertInspectionUrlUnderSite(
         'sc-domain:lomi.africa',
-        'https://docs.lomi.africa/guide',
+        'https://docs.lomi.africa/start/overview',
       ),
     ).not.toThrow();
   });

@@ -75,7 +75,7 @@ Non-loopback HTTP requires `GSC_MCP_CLIENT_BEARER_TOKEN`.
 
 ## Docs
 
-See `https://docs.lomi.africa/build/mcp-gsc`.
+See `https://docs.lomi.africa/build/mcp`.
 
 ## License
 
