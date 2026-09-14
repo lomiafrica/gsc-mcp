@@ -1,26 +1,26 @@
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-import { buildCapabilityState } from '../auth/capabilities.js';
-import type { CredentialContext } from '../auth/credential-provider.js';
-import { SearchConsoleClient } from '../google/search-console-client.js';
+import { buildCapabilityState } from "../auth/capabilities.js";
+import type { CredentialContext } from "../auth/credential-provider.js";
+import { SearchConsoleClient } from "../google/search-console-client.js";
 
 export function registerResources(
   server: McpServer,
   credentials: CredentialContext,
 ): void {
   server.registerResource(
-    'capabilities',
-    'gsc://capabilities',
+    "capabilities",
+    "gsc://capabilities",
     {
-      title: 'Search Console capabilities',
-      description: 'Active auth mode, scopes, limits, and disclosures.',
-      mimeType: 'application/json',
+      title: "Search Console capabilities",
+      description: "Active auth mode, scopes, limits, and disclosures.",
+      mimeType: "application/json",
     },
     async () => ({
       contents: [
         {
-          uri: 'gsc://capabilities',
-          mimeType: 'application/json',
+          uri: "gsc://capabilities",
+          mimeType: "application/json",
           text: JSON.stringify(buildCapabilityState(credentials), null, 2),
         },
       ],
@@ -28,18 +28,18 @@ export function registerResources(
   );
 
   server.registerResource(
-    'limits',
-    'gsc://limits',
+    "limits",
+    "gsc://limits",
     {
-      title: 'Search Console API limits',
-      description: 'Documented quotas and output limits for this server.',
-      mimeType: 'application/json',
+      title: "Search Console API limits",
+      description: "Documented quotas and output limits for this server.",
+      mimeType: "application/json",
     },
     async () => ({
       contents: [
         {
-          uri: 'gsc://limits',
-          mimeType: 'application/json',
+          uri: "gsc://limits",
+          mimeType: "application/json",
           text: JSON.stringify(
             {
               search_analytics: {
@@ -62,12 +62,12 @@ export function registerResources(
   );
 
   server.registerResource(
-    'sites',
-    'gsc://sites',
+    "sites",
+    "gsc://sites",
     {
-      title: 'Accessible Search Console properties',
-      description: 'Properties visible to the configured Google credential.',
-      mimeType: 'application/json',
+      title: "Accessible Search Console properties",
+      description: "Properties visible to the configured Google credential.",
+      mimeType: "application/json",
     },
     async () => {
       const client = new SearchConsoleClient(credentials);
@@ -75,8 +75,8 @@ export function registerResources(
       return {
         contents: [
           {
-            uri: 'gsc://sites',
-            mimeType: 'application/json',
+            uri: "gsc://sites",
+            mimeType: "application/json",
             text: JSON.stringify(sites, null, 2),
           },
         ],

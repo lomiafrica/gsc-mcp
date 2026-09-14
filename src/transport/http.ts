@@ -1,11 +1,11 @@
-import express from 'express';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import express from "express";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {
   hostHeaderValidation,
   localhostHostValidation,
-} from '@modelcontextprotocol/sdk/server/middleware/hostHeaderValidation.js';
+} from "@modelcontextprotocol/sdk/server/middleware/hostHeaderValidation.js";
 
-import { createCredentialContext } from '../auth/credential-provider.js';
+import { createCredentialContext } from "../auth/credential-provider.js";
 import {
   allowedHosts,
   allowedOrigins,
@@ -14,9 +14,9 @@ import {
   listenHost,
   maxBodyBytes,
   rateLimitRpm,
-} from '../env-config.js';
-import { buildGscServer } from '../server.js';
-import { requireHttpClientAuth } from './client-auth.js';
+} from "../env-config.js";
+import { buildGscServer } from "../server.js";
+import { requireHttpClientAuth } from "./client-auth.js";
 
 type RateBucket = { count: number; windowStart: number };
 const buckets = new Map<string, RateBucket>();
@@ -24,7 +24,7 @@ const buckets = new Map<string, RateBucket>();
 export async function startHttpServer(): Promise<void> {
   const credentials = await createCredentialContext();
   const app = express();
-  app.disable('x-powered-by');
+  app.disable("x-powered-by");
   app.use(express.json({ limit: maxBodyBytes() }));
 
   const hosts = allowedHosts();
@@ -39,17 +39,17 @@ export async function startHttpServer(): Promise<void> {
     app.use((req, res, next) => {
       const origin = req.headers.origin;
       if (origin && origins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Vary', 'Origin');
+        res.setHeader("Access-Control-Allow-Origin", origin);
+        res.setHeader("Vary", "Origin");
         res.setHeader(
-          'Access-Control-Allow-Headers',
-          'Content-Type, Authorization, Mcp-Session-Id, Mcp-Protocol-Version',
+          "Access-Control-Allow-Headers",
+          "Content-Type, Authorization, Mcp-Session-Id, Mcp-Protocol-Version",
         );
         res.setHeader(
-          'Access-Control-Expose-Headers',
-          'Mcp-Session-Id, WWW-Authenticate, Mcp-Protocol-Version',
+          "Access-Control-Expose-Headers",
+          "Mcp-Session-Id, WWW-Authenticate, Mcp-Protocol-Version",
         );
-        if (req.method === 'OPTIONS') {
+        if (req.method === "OPTIONS") {
           res.status(204).end();
           return;
         }
@@ -58,11 +58,11 @@ export async function startHttpServer(): Promise<void> {
     });
   }
 
-  app.get('/healthz', (_req, res) => {
+  app.get("/healthz", (_req, res) => {
     res.json({ ok: true });
   });
 
-  app.get('/readyz', (_req, res) => {
+  app.get("/readyz", (_req, res) => {
     res.json({ ok: true, auth_mode: credentials.mode });
   });
 
@@ -78,17 +78,19 @@ export async function startHttpServer(): Promise<void> {
   });
 
   app.get(basePath, (_req, res) => {
-    res.status(405).json({ error: 'GET not supported in stateless mode' });
+    res.status(405).json({ error: "GET not supported in stateless mode" });
   });
 
   app.delete(basePath, (_req, res) => {
-    res.status(405).json({ error: 'DELETE not supported in stateless mode' });
+    res.status(405).json({ error: "DELETE not supported in stateless mode" });
   });
 
   const host = listenHost();
   const port = httpListenPort();
   app.listen(port, host, () => {
-    console.error(`lomi-gsc-mcp HTTP listening on http://${host}:${port}${basePath}`);
+    console.error(
+      `lomi-gsc-mcp HTTP listening on http://${host}:${port}${basePath}`,
+    );
   });
 }
 
@@ -102,7 +104,7 @@ function rateLimit(
     next();
     return;
   }
-  const key = req.ip ?? 'unknown';
+  const key = req.ip ?? "unknown";
   const now = Date.now();
   const bucket = buckets.get(key) ?? { count: 0, windowStart: now };
   if (now - bucket.windowStart >= 60_000) {
@@ -112,7 +114,7 @@ function rateLimit(
   bucket.count += 1;
   buckets.set(key, bucket);
   if (bucket.count > limit) {
-    res.status(429).json({ error: 'Rate limit exceeded' });
+    res.status(429).json({ error: "Rate limit exceeded" });
     return;
   }
   next();

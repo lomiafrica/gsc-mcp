@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 import {
   AGGREGATION_TYPES,
@@ -10,22 +10,20 @@ import {
   SEARCH_TYPES,
   SEARCH_ANALYTICS_MAX_ROW_LIMIT,
   URL_INSPECTION_MAX_BATCH,
-} from './constants.js';
+} from "./constants.js";
 
-const isoDate = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD');
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
 
 export const siteUrlSchema = z
   .string()
   .min(1)
   .describe(
-    'Search Console property URL, e.g. sc-domain:example.com or https://example.com/',
+    "Search Console property URL, e.g. sc-domain:example.com or https://example.com/",
   );
 
 export const analyticsFilterSchema = z.object({
   dimension: z.enum(FILTER_DIMENSIONS),
-  operator: z.enum(FILTER_OPERATORS).default('equals'),
+  operator: z.enum(FILTER_OPERATORS).default("equals"),
   expression: z.string().min(1).max(4096),
 });
 
@@ -33,11 +31,16 @@ export const searchAnalyticsInputSchema = z.object({
   site_url: siteUrlSchema,
   start_date: isoDate,
   end_date: isoDate,
-  dimensions: z.array(z.enum(SEARCH_DIMENSIONS)).default(['query']),
-  search_type: z.enum(SEARCH_TYPES).default('web'),
-  aggregation_type: z.enum(AGGREGATION_TYPES).default('auto'),
-  data_state: z.enum(DATA_STATES).default('final'),
-  row_limit: z.number().int().min(1).max(SEARCH_ANALYTICS_MAX_ROW_LIMIT).default(1000),
+  dimensions: z.array(z.enum(SEARCH_DIMENSIONS)).default(["query"]),
+  search_type: z.enum(SEARCH_TYPES).default("web"),
+  aggregation_type: z.enum(AGGREGATION_TYPES).default("auto"),
+  data_state: z.enum(DATA_STATES).default("final"),
+  row_limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(SEARCH_ANALYTICS_MAX_ROW_LIMIT)
+    .default(1000),
   start_row: z.number().int().min(0).default(0),
   filters: z.array(analyticsFilterSchema).default([]),
 });
@@ -45,7 +48,7 @@ export const searchAnalyticsInputSchema = z.object({
 export const performanceOverviewInputSchema = z.object({
   site_url: siteUrlSchema,
   days: z.number().int().min(1).max(480).default(28),
-  search_type: z.enum(SEARCH_TYPES).default('web'),
+  search_type: z.enum(SEARCH_TYPES).default("web"),
 });
 
 export const comparePeriodsInputSchema = z.object({
@@ -54,8 +57,8 @@ export const comparePeriodsInputSchema = z.object({
   period1_end: isoDate,
   period2_start: isoDate,
   period2_end: isoDate,
-  dimensions: z.array(z.enum(SEARCH_DIMENSIONS)).default(['query']),
-  search_type: z.enum(SEARCH_TYPES).default('web'),
+  dimensions: z.array(z.enum(SEARCH_DIMENSIONS)).default(["query"]),
+  search_type: z.enum(SEARCH_TYPES).default("web"),
   row_limit: z.number().int().min(1).max(1000).default(100),
 });
 
@@ -73,7 +76,7 @@ export const quickWinsInputSchema = z.object({
 export const inspectUrlInputSchema = z.object({
   site_url: siteUrlSchema,
   inspection_url: z.string().url(),
-  language_code: z.string().default('en-US'),
+  language_code: z.string().default("en-US"),
 });
 
 export const batchInspectInputSchema = z.object({
@@ -82,7 +85,7 @@ export const batchInspectInputSchema = z.object({
     .array(z.string().url())
     .min(1)
     .max(URL_INSPECTION_MAX_BATCH),
-  language_code: z.string().default('en-US'),
+  language_code: z.string().default("en-US"),
 });
 
 export const indexingIssuesInputSchema = z.object({
@@ -113,7 +116,7 @@ export const portfolioHealthInputSchema = z.object({
     .max(20)
     .optional()
     .describe(
-      'Properties to check. Omit to use GSC_PORTFOLIO_SITES or every accessible property.',
+      "Properties to check. Omit to use GSC_PORTFOLIO_SITES or every accessible property.",
     ),
   days: z.number().int().min(1).max(480).default(28),
   inspect_homepages: z.boolean().default(true),
@@ -169,30 +172,28 @@ export function formatIsoDate(date: Date): string {
 }
 
 export function homepageFromSiteUrl(siteUrl: string): string {
-  if (siteUrl.startsWith('sc-domain:')) {
-    return `https://${siteUrl.slice('sc-domain:'.length)}/`;
+  if (siteUrl.startsWith("sc-domain:")) {
+    return `https://${siteUrl.slice("sc-domain:".length)}/`;
   }
-  return siteUrl.endsWith('/') ? siteUrl : `${siteUrl}/`;
+  return siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`;
 }
 
 export function assertInspectionUrlUnderSite(
   siteUrl: string,
   inspectionUrl: string,
 ): void {
-  if (siteUrl.startsWith('sc-domain:')) {
-    const domain = siteUrl.slice('sc-domain:'.length).toLowerCase();
+  if (siteUrl.startsWith("sc-domain:")) {
+    const domain = siteUrl.slice("sc-domain:".length).toLowerCase();
     const parsed = new URL(inspectionUrl);
     const host = parsed.hostname.toLowerCase();
     if (host !== domain && !host.endsWith(`.${domain}`)) {
-      throw new Error(
-        `inspection_url must belong to ${domain} for ${siteUrl}`,
-      );
+      throw new Error(`inspection_url must belong to ${domain} for ${siteUrl}`);
     }
     return;
   }
 
-  const normalizedSite = siteUrl.endsWith('/') ? siteUrl : `${siteUrl}/`;
-  if (!inspectionUrl.startsWith(normalizedSite.replace(/\/$/, ''))) {
+  const normalizedSite = siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`;
+  if (!inspectionUrl.startsWith(normalizedSite.replace(/\/$/, ""))) {
     throw new Error(`inspection_url must be under ${siteUrl}`);
   }
 }

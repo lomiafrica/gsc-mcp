@@ -1,15 +1,15 @@
-import { portfolioSites } from '../env-config.js';
-import { isJsonObject, readString, type JsonValue } from '@lomi./shared';
-import { mapWithConcurrency } from './retry.js';
+import { portfolioSites } from "../env-config.js";
+import { isJsonObject, readString, type JsonValue } from "@lomi./shared";
+import { mapWithConcurrency } from "./retry.js";
 import {
   homepageFromSiteUrl,
   inclusiveDateRange,
   type PortfolioHealthInput,
-} from './schemas.js';
-import type { SearchConsoleClient } from './search-console-client.js';
+} from "./schemas.js";
+import type { SearchConsoleClient } from "./search-console-client.js";
 
 const SITEMAP_INDEXED_DISCLOSURE =
-  'Sitemap contents.indexed is often 0 even when pages are indexed. Use homepage inspection, not that field.';
+  "Sitemap contents.indexed is often 0 even when pages are indexed. Use homepage inspection, not that field.";
 
 type SitemapSummary = {
   path: string;
@@ -66,17 +66,14 @@ export async function runPortfolioHealth(
     ]),
   );
   const range = inclusiveDateRange(input.days);
-  const properties = await mapWithConcurrency(
-    requested,
-    3,
-    async (siteUrl) =>
-      inspectProperty(
-        client,
-        siteUrl,
-        permissionBySite.get(siteUrl),
-        range,
-        input.inspect_homepages,
-      ),
+  const properties = await mapWithConcurrency(requested, 3, async (siteUrl) =>
+    inspectProperty(
+      client,
+      siteUrl,
+      permissionBySite.get(siteUrl),
+      range,
+      input.inspect_homepages,
+    ),
   );
   return {
     date_range: range,
@@ -120,16 +117,16 @@ async function inspectProperty(
         site_url: siteUrl,
         start_date: range.startDate,
         end_date: range.endDate,
-        dimensions: ['date'],
-        search_type: 'web',
-        aggregation_type: 'auto',
-        data_state: 'all',
+        dimensions: ["date"],
+        search_type: "web",
+        aggregation_type: "auto",
+        data_state: "all",
         row_limit: 1000,
         start_row: 0,
         filters: [],
       }),
       inspectHomepage
-        ? client.inspectUrl(siteUrl, homepage, 'en-US')
+        ? client.inspectUrl(siteUrl, homepage, "en-US")
         : Promise.resolve(undefined),
     ]);
     return {
@@ -160,7 +157,10 @@ async function inspectProperty(
         warning_count: 0,
         feeds: [],
       },
-      error: error instanceof Error ? error.message : 'Unexpected Search Console error',
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unexpected Search Console error",
     };
   }
 }
@@ -172,7 +172,7 @@ export function summarizeAnalytics(
     ctr: number;
     position: number;
   }>,
-): PortfolioPropertyHealth['totals'] {
+): PortfolioPropertyHealth["totals"] {
   if (rows.length === 0) {
     return {
       clicks: 0,
@@ -199,13 +199,13 @@ export function summarizeAnalytics(
 
 export function summarizeSitemaps(
   sitemaps: JsonValue,
-): PortfolioPropertyHealth['sitemaps'] {
+): PortfolioPropertyHealth["sitemaps"] {
   const feeds = Array.isArray(sitemaps)
     ? sitemaps.flatMap((entry) => {
         if (!isJsonObject(entry)) {
           return [];
         }
-        const path = readString(entry, 'path') ?? '';
+        const path = readString(entry, "path") ?? "";
         const errors = Number(entry.errors ?? 0);
         const warnings = Number(entry.warnings ?? 0);
         const contents = Array.isArray(entry.contents) ? entry.contents : [];
@@ -235,7 +235,7 @@ export function summarizeSitemaps(
 
 function readHomepageInspection(
   inspectionResult: JsonValue,
-): PortfolioPropertyHealth['homepage_inspection'] {
+): PortfolioPropertyHealth["homepage_inspection"] {
   if (!isJsonObject(inspectionResult)) {
     return undefined;
   }
@@ -244,10 +244,10 @@ function readHomepageInspection(
     return undefined;
   }
   return {
-    verdict: readString(indexStatus, 'verdict'),
-    coverage_state: readString(indexStatus, 'coverageState'),
-    last_crawl_time: readString(indexStatus, 'lastCrawlTime'),
-    page_fetch_state: readString(indexStatus, 'pageFetchState'),
-    google_canonical: readString(indexStatus, 'googleCanonical'),
+    verdict: readString(indexStatus, "verdict"),
+    coverage_state: readString(indexStatus, "coverageState"),
+    last_crawl_time: readString(indexStatus, "lastCrawlTime"),
+    page_fetch_state: readString(indexStatus, "pageFetchState"),
+    google_canonical: readString(indexStatus, "googleCanonical"),
   };
 }

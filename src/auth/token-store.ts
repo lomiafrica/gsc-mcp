@@ -1,9 +1,9 @@
-import { chmod, mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { chmod, mkdir, readFile, unlink, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 
-import type { Credentials } from 'google-auth-library';
+import type { Credentials } from "google-auth-library";
 
-import { oauthTokenPath } from './constants.js';
+import { oauthTokenPath } from "./constants.js";
 
 export async function ensureConfigDir(path: string): Promise<void> {
   await mkdir(dirname(path), { recursive: true, mode: 0o700 });
@@ -11,7 +11,7 @@ export async function ensureConfigDir(path: string): Promise<void> {
 
 export async function readStoredToken(): Promise<Credentials | null> {
   try {
-    const raw = await readFile(oauthTokenPath(), 'utf8');
+    const raw = await readFile(oauthTokenPath(), "utf8");
     // SAFETY: OAuth2Client validates stored credential fields when installed.
     return JSON.parse(raw) as Credentials;
   } catch {

@@ -1,4 +1,4 @@
-import { isJsonObject, readString, validateJsonValue } from '@lomi./shared';
+import { isJsonObject, readString, validateJsonValue } from "@lomi./shared";
 
 export function maxResultRows(): number {
   const raw = process.env.GSC_MCP_MAX_RESULT_ROWS?.trim();
@@ -9,32 +9,32 @@ export function maxResultRows(): number {
   return Math.min(parsed, 25_000);
 }
 
-export type McpTransportMode = 'stdio' | 'http';
+export type McpTransportMode = "stdio" | "http";
 
 export function getTransportMode(): McpTransportMode {
-  const mode = (process.env.GSC_MCP_TRANSPORT ?? 'stdio').toLowerCase();
-  if (mode === 'http' || mode === 'stdio') {
+  const mode = (process.env.GSC_MCP_TRANSPORT ?? "stdio").toLowerCase();
+  if (mode === "http" || mode === "stdio") {
     return mode;
   }
   throw new Error('GSC_MCP_TRANSPORT must be "stdio" or "http"');
 }
 
 export function httpListenPort(): number {
-  const raw = process.env.PORT ?? process.env.GSC_MCP_HTTP_PORT ?? '3344';
+  const raw = process.env.PORT ?? process.env.GSC_MCP_HTTP_PORT ?? "3344";
   const port = Number(raw);
   if (!Number.isInteger(port) || port <= 0 || port > 65535) {
-    throw new Error('Invalid GSC_MCP_HTTP_PORT');
+    throw new Error("Invalid GSC_MCP_HTTP_PORT");
   }
   return port;
 }
 
 export function httpBasePath(): string {
-  const raw = process.env.GSC_MCP_HTTP_PATH?.trim() || '/mcp';
-  return raw.startsWith('/') ? raw : `/${raw}`;
+  const raw = process.env.GSC_MCP_HTTP_PATH?.trim() || "/mcp";
+  return raw.startsWith("/") ? raw : `/${raw}`;
 }
 
 export function listenHost(): string {
-  return process.env.GSC_MCP_HTTP_HOST?.trim() || '0.0.0.0';
+  return process.env.GSC_MCP_HTTP_HOST?.trim() || "0.0.0.0";
 }
 
 export function allowedHosts(): string[] | undefined {
@@ -42,7 +42,10 @@ export function allowedHosts(): string[] | undefined {
   if (!raw) {
     return undefined;
   }
-  return raw.split(',').map((value) => value.trim()).filter(Boolean);
+  return raw
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
 }
 
 export function allowedOrigins(): string[] {
@@ -50,7 +53,10 @@ export function allowedOrigins(): string[] {
   if (!raw) {
     return [];
   }
-  return raw.split(',').map((value) => value.trim()).filter(Boolean);
+  return raw
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
 }
 
 export function clientBearerToken(): string | null {
@@ -71,7 +77,7 @@ export function maxBodyBytes(): number {
 }
 
 export function isLoopbackHost(host: string): boolean {
-  return host === '127.0.0.1' || host === 'localhost' || host === '::1';
+  return host === "127.0.0.1" || host === "localhost" || host === "::1";
 }
 
 export function quotaProjectFromEnv(): string | null {
@@ -88,7 +94,7 @@ export function portfolioSites(): string[] {
     return [];
   }
   return raw
-    .split(',')
+    .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
 }
@@ -99,7 +105,7 @@ export function readQuotaProjectFromAdcJson(raw: string): string | null {
     if (!isJsonObject(parsed)) {
       return null;
     }
-    const project = readString(parsed, 'quota_project_id')?.trim();
+    const project = readString(parsed, "quota_project_id")?.trim();
     return project || null;
   } catch {
     return null;

@@ -1,30 +1,26 @@
-import { readFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { readFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
-import {
-  GoogleAuth,
-  OAuth2Client,
-  type JWTInput,
-} from 'google-auth-library';
+import { GoogleAuth, OAuth2Client, type JWTInput } from "google-auth-library";
 
 import {
   quotaProjectFromEnv,
   readQuotaProjectFromAdcJson,
-} from '../env-config.js';
+} from "../env-config.js";
 import {
   GSC_READONLY_SCOPE,
   GSC_WRITE_SCOPE,
   requestedOAuthScopes,
   writesEnabled,
-} from './constants.js';
-import { loadOAuthClientConfig } from './oauth-flow.js';
-import { readStoredToken } from './token-store.js';
+} from "./constants.js";
+import { loadOAuthClientConfig } from "./oauth-flow.js";
+import { readStoredToken } from "./token-store.js";
 
 export type CredentialMode =
-  | 'oauth'
-  | 'service_account'
-  | 'application_default';
+  | "oauth"
+  | "service_account"
+  | "application_default";
 
 export type CredentialContext = {
   mode: CredentialMode;
@@ -44,13 +40,13 @@ export async function createCredentialContext(): Promise<CredentialContext> {
     });
     const client = await auth.getClient();
     return attachQuota({
-      mode: 'service_account',
+      mode: "service_account",
       scopes,
       canWrite: scopes.includes(GSC_WRITE_SCOPE),
       getAccessToken: async () => {
         const token = await client.getAccessToken();
         if (!token.token) {
-          throw new Error('Failed to obtain Google access token');
+          throw new Error("Failed to obtain Google access token");
         }
         return token.token;
       },
@@ -61,16 +57,16 @@ export async function createCredentialContext(): Promise<CredentialContext> {
   if (oauthClient) {
     const scopes = requestedOAuthScopes();
     return attachQuota({
-      mode: 'oauth',
+      mode: "oauth",
       scopes,
       canWrite: scopes.includes(GSC_WRITE_SCOPE),
       getAccessToken: async () => {
         const headers = await oauthClient.getRequestHeaders();
-        const authHeader = headers.get('Authorization');
-        if (!authHeader?.startsWith('Bearer ')) {
-          throw new Error('Failed to obtain Google access token');
+        const authHeader = headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          throw new Error("Failed to obtain Google access token");
         }
-        return authHeader.slice('Bearer '.length);
+        return authHeader.slice("Bearer ".length);
       },
     });
   }
@@ -79,13 +75,13 @@ export async function createCredentialContext(): Promise<CredentialContext> {
   const client = await auth.getClient();
   const scopes = requestedOAuthScopes();
   return attachQuota({
-    mode: 'application_default',
+    mode: "application_default",
     scopes,
     canWrite: scopes.includes(GSC_WRITE_SCOPE),
     getAccessToken: async () => {
       const token = await client.getAccessToken();
       if (!token.token) {
-        throw new Error('Failed to obtain Google access token');
+        throw new Error("Failed to obtain Google access token");
       }
       return token.token;
     },
@@ -116,7 +112,7 @@ async function loadServiceAccountCredentials(): Promise<JWTInput | null> {
   if (!path) {
     return null;
   }
-  const raw = await readFile(path, 'utf8');
+  const raw = await readFile(path, "utf8");
   // SAFETY: GoogleAuth validates the parsed credential fields before use.
   return JSON.parse(raw) as JWTInput;
 }
@@ -133,14 +129,14 @@ export function mutationToolsEnabled(context: CredentialContext): boolean {
 }
 
 export const AUTH_SETUP_HINT =
-  'Google Search Console is not signed in. Run gcloud auth application-default login --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/webmasters.readonly and set GOOGLE_CLOUD_QUOTA_PROJECT to a GCP project with the Search Console API enabled. Cursor Connect only reconnects this local server; it does not sign in to Google. Or place a Desktop OAuth client JSON at ~/.config/lomi-gsc-mcp/oauth_credentials.json and run: npx @lomi./gsc-mcp auth';
+  "Google Search Console is not signed in. Run gcloud auth application-default login --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/webmasters.readonly and set GOOGLE_CLOUD_QUOTA_PROJECT to a GCP project with the Search Console API enabled. Cursor Connect only reconnects this local server; it does not sign in to Google. Or place a Desktop OAuth client JSON at ~/.config/lomi-gsc-mcp/oauth_credentials.json and run: npx @lomi./gsc-mcp auth";
 
 export function createUnauthenticatedContext(
   cause: Error | string,
 ): CredentialContext {
   const detail = cause instanceof Error ? cause.message : String(cause);
   return {
-    mode: 'oauth',
+    mode: "oauth",
     scopes: [],
     canWrite: false,
     quotaProject: quotaProjectFromEnv(),
@@ -157,9 +153,14 @@ async function resolveQuotaProject(): Promise<string | null> {
   }
   const path =
     process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim() ||
-    join(homedir(), '.config', 'gcloud', 'application_default_credentials.json');
+    join(
+      homedir(),
+      ".config",
+      "gcloud",
+      "application_default_credentials.json",
+    );
   try {
-    const raw = await readFile(path, 'utf8');
+    const raw = await readFile(path, "utf8");
     return readQuotaProjectFromAdcJson(raw);
   } catch {
     return null;
@@ -167,7 +168,7 @@ async function resolveQuotaProject(): Promise<string | null> {
 }
 
 async function attachQuota(
-  context: Omit<CredentialContext, 'quotaProject'>,
+  context: Omit<CredentialContext, "quotaProject">,
 ): Promise<CredentialContext> {
   return {
     ...context,
@@ -180,7 +181,7 @@ export async function createCredentialContextOrPlaceholder(): Promise<Credential
     return await createCredentialContext();
   } catch (error) {
     return createUnauthenticatedContext(
-      error instanceof Error ? error : 'Unknown authentication error',
+      error instanceof Error ? error : "Unknown authentication error",
     );
   }
 }

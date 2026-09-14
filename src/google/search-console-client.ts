@@ -216,10 +216,7 @@ export class SearchConsoleClient {
     };
   }
 
-  async getSitemap(
-    siteUrl: string,
-    feedpath: string,
-  ): Promise<JsonObject> {
+  async getSitemap(siteUrl: string, feedpath: string): Promise<JsonObject> {
     const data = await this.request<JsonObject>(
       `${WEBMASTERS_V3_BASE}/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(feedpath)}`,
     );

@@ -384,8 +384,7 @@ export function registerReadTools(
                 : undefined;
             const indexStatusValue = inspection?.indexStatusResult;
             const indexStatus =
-              indexStatusValue !== undefined &&
-              isJsonObject(indexStatusValue)
+              indexStatusValue !== undefined && isJsonObject(indexStatusValue)
                 ? indexStatusValue
                 : undefined;
             const verdict = indexStatus

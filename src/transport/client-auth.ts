@@ -1,7 +1,7 @@
-import { timingSafeEqual } from 'node:crypto';
-import type { NextFunction, Request, Response } from 'express';
+import { timingSafeEqual } from "node:crypto";
+import type { NextFunction, Request, Response } from "express";
 
-import { clientBearerToken, isLoopbackHost } from '../env-config.js';
+import { clientBearerToken, isLoopbackHost } from "../env-config.js";
 
 export function requireHttpClientAuth(
   req: Request,
@@ -17,29 +17,29 @@ export function requireHttpClientAuth(
   const expected = clientBearerToken();
   if (!expected) {
     res.status(503).json({
-      error: 'HTTP client authentication is not configured',
+      error: "HTTP client authentication is not configured",
     });
     return;
   }
 
   const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
+  if (!header?.startsWith("Bearer ")) {
     res.setHeader(
-      'WWW-Authenticate',
+      "WWW-Authenticate",
       'Bearer realm="lomi-gsc-mcp", error="invalid_token"',
     );
-    res.status(401).json({ error: 'Missing bearer token' });
+    res.status(401).json({ error: "Missing bearer token" });
     return;
   }
 
-  const presented = header.slice('Bearer '.length);
+  const presented = header.slice("Bearer ".length);
   const presentedBuf = Buffer.from(presented);
   const expectedBuf = Buffer.from(expected);
   if (
     presentedBuf.length !== expectedBuf.length ||
     !timingSafeEqual(presentedBuf, expectedBuf)
   ) {
-    res.status(401).json({ error: 'Invalid bearer token' });
+    res.status(401).json({ error: "Invalid bearer token" });
     return;
   }
 

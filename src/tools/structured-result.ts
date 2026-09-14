@@ -1,7 +1,7 @@
-import { isJsonArray, type JsonObject, type JsonValue } from '@lomi./shared';
-import { maxResultRows } from '../env-config.js';
+import { isJsonArray, type JsonObject, type JsonValue } from "@lomi./shared";
+import { maxResultRows } from "../env-config.js";
 
-type ToolTextContent = { type: 'text'; text: string };
+type ToolTextContent = { type: "text"; text: string };
 
 type ToolSuccessResult<T extends JsonObject> = {
   content: ToolTextContent[];
@@ -24,14 +24,14 @@ export function toolSuccess<T extends JsonObject>(
 ): ToolSuccessResult<T> {
   const compact = compactStructured(value);
   return {
-    content: [{ type: 'text', text: JSON.stringify(compact, null, 2) }],
+    content: [{ type: "text", text: JSON.stringify(compact, null, 2) }],
     structuredContent: compact,
   };
 }
 
 export function toolError(message: string): ToolErrorResult {
   return {
-    content: [{ type: 'text', text: message }],
+    content: [{ type: "text", text: message }],
     isError: true,
   };
 }

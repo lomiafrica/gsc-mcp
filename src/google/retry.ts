@@ -1,4 +1,4 @@
-import { GscApiError } from './errors.js';
+import { GscApiError } from "./errors.js";
 
 export async function withRetry<T>(
   fn: () => Promise<T>,
@@ -11,17 +11,17 @@ export async function withRetry<T>(
   const maxAttempts = options.maxAttempts ?? 4;
   const baseDelayMs = options.baseDelayMs ?? 500;
   let attempt = 0;
-  let lastError: Error = new Error('Retry attempts exhausted');
+  let lastError: Error = new Error("Retry attempts exhausted");
 
   while (attempt < maxAttempts) {
     if (options.signal?.aborted) {
-      throw new Error('Request aborted');
+      throw new Error("Request aborted");
     }
     try {
       return await fn();
     } catch (error) {
       lastError =
-        error instanceof Error ? error : new Error('Unexpected retry failure');
+        error instanceof Error ? error : new Error("Unexpected retry failure");
       const retryable = error instanceof GscApiError && error.retryable;
       attempt += 1;
       if (!retryable || attempt >= maxAttempts) {
@@ -40,10 +40,10 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(resolve, ms);
     signal?.addEventListener(
-      'abort',
+      "abort",
       () => {
         clearTimeout(timer);
-        reject(new Error('Request aborted'));
+        reject(new Error("Request aborted"));
       },
       { once: true },
     );

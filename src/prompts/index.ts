@@ -1,19 +1,19 @@
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export function registerPrompts(server: McpServer): void {
   server.registerPrompt(
-    'portfolio-health-review',
+    "portfolio-health-review",
     {
-      title: 'Portfolio health review',
+      title: "Portfolio health review",
       description:
-        'Check every configured Search Console property for index, sitemap, and traffic health.',
+        "Check every configured Search Console property for index, sitemap, and traffic health.",
     },
     async () => ({
       messages: [
         {
-          role: 'user',
+          role: "user",
           content: {
-            type: 'text',
+            type: "text",
             text: `Review Search Console health across the portfolio.
 
 Call gsc_portfolio_health. Summarize each property: homepage verdict, last crawl, sitemap errors or warnings, and 28-day clicks and impressions.
@@ -26,18 +26,18 @@ Do not treat sitemap contents.indexed as proof of indexing. That field is often 
   );
 
   server.registerPrompt(
-    'weekly-performance-review',
+    "weekly-performance-review",
     {
-      title: 'Weekly performance review',
+      title: "Weekly performance review",
       description:
-        'Review the last 28 days of Search Console performance for one property.',
+        "Review the last 28 days of Search Console performance for one property.",
     },
     async () => ({
       messages: [
         {
-          role: 'user',
+          role: "user",
           content: {
-            type: 'text',
+            type: "text",
             text: `Review Search Console performance for the target property over the last 28 days.
 
 Steps:
@@ -54,18 +54,18 @@ Disclose that Search Console returns top rows only, not guaranteed exhaustive da
   );
 
   server.registerPrompt(
-    'low-hanging-opportunities',
+    "low-hanging-opportunities",
     {
-      title: 'Low-hanging SEO opportunities',
+      title: "Low-hanging SEO opportunities",
       description:
-        'Find quick-win queries with meaningful impressions and weak CTR.',
+        "Find quick-win queries with meaningful impressions and weak CTR.",
     },
     async () => ({
       messages: [
         {
-          role: 'user',
+          role: "user",
           content: {
-            type: 'text',
+            type: "text",
             text: `Find low-hanging SEO opportunities for the selected property.
 
 Use gsc_quick_wins with the last 28 days, then explain the top opportunities with page context and concrete title/meta recommendations. Mention that the analysis is based on top query/page rows only.`,
@@ -76,18 +76,17 @@ Use gsc_quick_wins with the last 28 days, then explain the top opportunities wit
   );
 
   server.registerPrompt(
-    'cannibalization-analysis',
+    "cannibalization-analysis",
     {
-      title: 'Keyword cannibalization analysis',
-      description:
-        'Look for multiple pages competing for the same query.',
+      title: "Keyword cannibalization analysis",
+      description: "Look for multiple pages competing for the same query.",
     },
     async () => ({
       messages: [
         {
-          role: 'user',
+          role: "user",
           content: {
-            type: 'text',
+            type: "text",
             text: `Analyze keyword cannibalization for the selected property.
 
 Call gsc_search_analytics with dimensions query and page over the last 28 days, row_limit 1000. Group rows by query and flag queries served by multiple pages with meaningful impressions. Recommend canonical or consolidation actions.`,
@@ -98,18 +97,18 @@ Call gsc_search_analytics with dimensions query and page over the last 28 days, 
   );
 
   server.registerPrompt(
-    'indexing-audit',
+    "indexing-audit",
     {
-      title: 'Indexing audit',
+      title: "Indexing audit",
       description:
-        'Inspect a set of important URLs and summarize indexing blockers.',
+        "Inspect a set of important URLs and summarize indexing blockers.",
     },
     async () => ({
       messages: [
         {
-          role: 'user',
+          role: "user",
           content: {
-            type: 'text',
+            type: "text",
             text: `Run an indexing audit for the selected property.
 
 Inspect the important URLs provided by the user with gsc_indexing_issues.

@@ -1,20 +1,20 @@
 #!/usr/bin/env node
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
-import { createCredentialContextOrPlaceholder } from './auth/credential-provider.js';
-import { runDesktopOAuthFlow } from './auth/oauth-flow.js';
-import { getTransportMode } from './env-config.js';
-import { buildGscServer } from './server.js';
-import { startHttpServer } from './transport/http.js';
+import { createCredentialContextOrPlaceholder } from "./auth/credential-provider.js";
+import { runDesktopOAuthFlow } from "./auth/oauth-flow.js";
+import { getTransportMode } from "./env-config.js";
+import { buildGscServer } from "./server.js";
+import { startHttpServer } from "./transport/http.js";
 
 async function main(): Promise<void> {
   const command = process.argv[2];
-  if (command === 'auth') {
+  if (command === "auth") {
     await runDesktopOAuthFlow();
     return;
   }
 
-  if (getTransportMode() === 'http') {
+  if (getTransportMode() === "http") {
     await startHttpServer();
     return;
   }

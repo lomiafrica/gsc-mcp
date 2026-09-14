@@ -1,10 +1,10 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-import type { CredentialContext } from './auth/credential-provider.js';
-import { registerPrompts } from './prompts/index.js';
-import { registerResources } from './resources/index.js';
-import { registerReadTools } from './tools/read-tools.js';
-import { registerWriteTools } from './tools/write-tools.js';
+import type { CredentialContext } from "./auth/credential-provider.js";
+import { registerPrompts } from "./prompts/index.js";
+import { registerResources } from "./resources/index.js";
+import { registerReadTools } from "./tools/read-tools.js";
+import { registerWriteTools } from "./tools/write-tools.js";
 
 const SERVER_INSTRUCTIONS = `# lomi. Google Search Console MCP
 
@@ -17,12 +17,12 @@ Mutation tools are available only when write scope and \`GSC_ENABLE_WRITES=true\
 export function buildGscServer(credentials: CredentialContext): McpServer {
   const server = new McpServer(
     {
-      name: 'lomi-gsc',
-      version: '0.1.0',
-      title: 'lomi. Google Search Console MCP',
+      name: "lomi-gsc",
+      version: "0.1.0",
+      title: "lomi. Google Search Console MCP",
       description:
-        'Typed Google Search Console analytics, inspection, and sitemap tools.',
-      websiteUrl: 'https://docs.lomi.africa/build/mcp',
+        "Typed Google Search Console analytics, inspection, and sitemap tools.",
+      websiteUrl: "https://docs.lomi.africa/build/mcp",
     },
     {
       instructions: SERVER_INSTRUCTIONS,
