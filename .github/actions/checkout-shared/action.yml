@@ -4,16 +4,37 @@ description: "Checkout packages/shared from private lomiafrica/packages"
 inputs:
   token:
     description: PAT that can read lomiafrica/packages
-    required: true
+    required: false
+    default: ""
+  ssh_key:
+    description: Read-only deploy key for lomiafrica/packages
+    required: false
+    default: ""
 
 runs:
   using: composite
   steps:
-    - name: Checkout private packages
+    - name: Require packages auth
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [ -z "${{ inputs.token }}" ] && [ -z "${{ inputs.ssh_key }}" ]; then
+          echo "Set REPO_CHECKOUT_PAT or LOMI_PACKAGES_SSH_KEY on this repo" >&2
+          exit 1
+        fi
+    - name: Checkout private packages with PAT
+      if: ${{ inputs.token != '' }}
       uses: actions/checkout@v5
       with:
         repository: lomiafrica/packages
         token: ${{ inputs.token }}
+        path: _packages
+    - name: Checkout private packages with deploy key
+      if: ${{ inputs.token == '' && inputs.ssh_key != '' }}
+      uses: actions/checkout@v5
+      with:
+        repository: lomiafrica/packages
+        ssh-key: ${{ inputs.ssh_key }}
         path: _packages
     - name: "Link packages/shared for file: dependency"
       shell: bash
