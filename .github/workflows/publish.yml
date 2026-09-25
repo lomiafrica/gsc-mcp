@@ -46,9 +46,10 @@ jobs:
 
       - name: Install dependencies, test, and build
         run: |
-          pnpm install --frozen-lockfile
           pnpm --dir "$GITHUB_WORKSPACE/_packages/shared" install --frozen-lockfile
           pnpm --dir "$GITHUB_WORKSPACE/_packages/shared" run build
+          test -f "$GITHUB_WORKSPACE/_packages/shared/dist/index.js"
+          pnpm install --frozen-lockfile
           pnpm test
           pnpm run build
 

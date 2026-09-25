@@ -29,13 +29,14 @@ jobs:
         with:
           version: 9
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Build @lomi./shared
         run: |
           pnpm --dir "$GITHUB_WORKSPACE/_packages/shared" install --frozen-lockfile
           pnpm --dir "$GITHUB_WORKSPACE/_packages/shared" run build
+          test -f "$GITHUB_WORKSPACE/_packages/shared/dist/index.js"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm run lint
