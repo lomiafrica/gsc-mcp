@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build @lomi./shared
+        run: pnpm --dir "$GITHUB_WORKSPACE/_packages/shared" run build
+
       - name: Lint
         run: pnpm run lint
 
