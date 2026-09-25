@@ -1,33 +1,19 @@
 name: "Checkout @lomi./shared"
-description: "Checkout packages/shared from private lomiafrica/packages, with a public umbrella fallback"
+description: "Checkout packages/shared from private lomiafrica/packages"
 
 runs:
   using: composite
   steps:
     - name: Checkout private packages
-      id: private-packages
-      continue-on-error: true
       uses: actions/checkout@v5
       with:
         repository: lomiafrica/packages
         token: ${{ secrets.REPO_CHECKOUT_PAT }}
         path: _packages
-    - name: Checkout public umbrella packages
-      if: steps.private-packages.outcome != 'success'
-      uses: actions/checkout@v5
-      with:
-        repository: lomiafrica/lomi.
-        sparse-checkout: packages/shared
-        sparse-checkout-cone-mode: true
-        path: _umbrella
     - name: "Link packages/shared for file: dependency"
       shell: bash
       run: |
         set -euo pipefail
         mkdir -p ../../../packages
-        if [ -f "$GITHUB_WORKSPACE/_packages/shared/package.json" ]; then
-          ln -sfn "$GITHUB_WORKSPACE/_packages/shared" ../../../packages/shared
-        else
-          ln -sfn "$GITHUB_WORKSPACE/_umbrella/packages/shared" ../../../packages/shared
-        fi
+        ln -sfn "$GITHUB_WORKSPACE/_packages/shared" ../../../packages/shared
         ls -la ../../../packages/shared/package.json
