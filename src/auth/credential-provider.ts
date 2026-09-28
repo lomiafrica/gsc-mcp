@@ -18,7 +18,9 @@ import { loadOAuthClientConfig } from "./oauth-flow.js";
 import { readStoredToken } from "./token-store.js";
 
 export type CredentialMode =
-  "oauth" | "service_account" | "application_default";
+  | "oauth"
+  | "service_account"
+  | "application_default";
 
 export type CredentialContext = {
   mode: CredentialMode;
